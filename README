@@ -1,0 +1,8 @@
+install latex:
+
+ $ sudo apt-get install texlive-latex-{base,recommended,extra} texlive-fonts-recommended 
+
+compile with:
+
+ $ pdflatex -shell-escape raven_spring13.tex
+
