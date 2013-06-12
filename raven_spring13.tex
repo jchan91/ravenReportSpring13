@@ -44,12 +44,14 @@ University of California Los Angeles
 University of California Los Angeles
 } % end author
 
-% \maketitle
 
 \twocolumn[
   \begin{@twocolumnfalse}
     \maketitle
-    \begin{abstract}
+    \vspace{5cm}
+    \hfill
+    \begin{minipage}{0.8\linewidth}
+      \begin{abstract}
 
 The Raven II Surgical Robot is a 7-DOF cable-actuated surgical robot
 designed for minimally invasive and remote surgery. The robot can be
@@ -62,17 +64,17 @@ current code's limited use of ROS constructs. The objective of our
 team is to fully integrate ROS into the Raven II which would bring
 better support for generic control, image processing, basic
 automation, and overall cleaner and more reliable code. This report
-covers the implementation of generic control based on ROS.\\\\
+covers the implementation of generic control based on ROS.
 
-    \end{abstract}
+      \end{abstract}
+    \end{minipage}
+    \hfill
   \end{@twocolumnfalse}
 ]
 
-
-% Use the following at camera-ready time to suppress page numbers.
-% Comment it out when you first submit the paper for review.
-% \thispagestyle{empty}
-
+\thispagestyle{empty} % we don't want a page number on the title page
+\clearpage % end the title page
+\setcounter{page}{1} % we want the page numbering to start here
 
 \section{Introduction}
 The Raven II surgical robotic arm was designed by the BioRobotics
