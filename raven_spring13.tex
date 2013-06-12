@@ -131,7 +131,26 @@ be seen in the source file \texttt{rt\_process\_preempt.c}.
 
 \section{Motivation}
 
-\subsection{Lack of modular design in the Raven code}
+\subsection{Lack of modular design}
+
+Many components in the Raven code required specific knowledge of
+several other components. In a fully modular system, each component
+would not require such information, but would compensate in
+functionality by adding slightly more components that each do slightly
+simpler, more general tasks. In a well designed modular system, each
+component's input and output is clearly defined.
+
+For example, the UDP packets being sent from the master to the slave
+need to be manually sequenced---if, at the slave (recieving) node, the
+differential poses are not processed in-order, then the accumulated
+absolute pose might sometimes have a meaningless value. In a modular
+system, there may be an additional \emph{sequencer} module that
+handles one simple task: sequencing packets in an unreliable
+link. Incidentally, ROS provides an alternative transport layer:
+``UDPROS uses standard UDP datagram packets to transport serialized
+message data. The UDPROS transport is useful when latency is more
+important than reliable transport. Examples in the robotics domain
+include teleoperation\ldots~\cite{udpros}.''
 
 \subsection{Robots in MIS, and software}
 
