@@ -93,11 +93,8 @@ that they can even be shared across different robots. However, we
 discovered that BRL's use of ROS programming constructs are minimal
 (granted, ROS did not exist when the Raven was originally conceived).
 
-\section{Motivation}
+\section{Understanding the Raven code}
 
-\subsection{Robots in MIS, and software}
-
-\subsection{Understanding the Raven code}
 The structure of the current raven system is straightfoward. At the
 highest level, there is a master node and a slave node. The master
 interprets the position and orientation of two Phantom Omni haptic
@@ -107,10 +104,14 @@ will accumulate the differential pose\footnote{in robotics, \emph{pose}
   is the combination of position and orientation} into an absolute
 pose, or goal pose, then attempt to reach the goal pose.
 
-For the slave, this process repeats every millisecond. The master is
-on its own time---there is no synchronization between the master and
-slave.
+The master node makes use of the Phantom Omni API for determining
+differential poses and grasp values for each arm. There is also a
+pedal connected to the master computer to determine whether the
+operator wants to engage or disengage the robot. During each iteration
+it encapsulates all that data in UDP packets and sends them to the
+slave node. \\
 
+\noindent
 The slave code spawns three threads:
 
 \begin{itemize}
@@ -119,13 +120,20 @@ The slave code spawns three threads:
   \item control (e.g. IK, USB I/O)
 \end{itemize}
 
-The control thread is a realtime thread that, at a fixed interval,
-updates its current and desired pose, calculates torques for each
-motor, and applies those torques. This is referred to as the
-\emph{control loop}, and can be seen in
-\texttt{raven\_2/src/raven/rt\_process\_preempt.c}. 
+The \emph{networking thread} listens for UDP packets from the master
+node, then accumulates the differential pose into an absolute pose
+that represents the desired pose. The \emph{control thread} is a
+realtime thread that, at a fixed interval, retrieves the latest
+desired pose, calculates torques for each motor, and applies those
+torques (this process is called PID control). The control thread
+encapsulates what is referred to as the \emph{control loop}, and can
+be seen in the source file \texttt{rt\_process\_preempt.c}.
+
+\section{Motivation}
 
 \subsection{Lack of modular design in the Raven code}
+
+\subsection{Robots in MIS, and software}
 
 \subsection{Image recognition}
 
@@ -150,7 +158,7 @@ motor, and applies those torques. This is referred to as the
 
 Our top-level design of the ROS network replaces the \emph{networking}
 thread, \emph{console I/O} thread, and the entire master side with ROS
-components. The square Mech node in Figure ~\ref{fig:ros_network}
+components. The square Mech node in Figure~\ref{fig:ros_network}
 encasulates most of the existing raven code, including all of the code
 responsible for gravity compensation, inverse kinematics, PID control,
 and USB I/O. Our ROS network defines a standard interface between the
@@ -172,7 +180,7 @@ control node is contained within an independent ROS package called
 {\it raven\_fsm} through the ROS messaging system, as shown in Figure
 1.
 
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[scale=0.33]{ControlDiagram.jpg}
 \caption{Controller-FSM Messaging}
 \end{figure}
@@ -202,7 +210,7 @@ controllers. Due to the incompleteness of the development, a control
 device node needs to be manually added following the template in
 Figure 2.
 
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[scale=0.6]{ControlDeviceTemplate.png}
 \caption{Control Device Python Template}
 \end{figure}
@@ -218,7 +226,7 @@ The finite state machine serves as a high-level commander of the
 Raven-II system. It's in charge of the state estimation and
 transition. Figure 3 shows the work flow of the FSM.
 
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[scale=0.4]{FSM.png}
 \caption{FSM Work Flow}
 \end{figure}
