@@ -214,10 +214,34 @@ will not break.
 
 
 \subsection{Arbitrary controllers}
+There is a bare minimum amount of data that needs to be sent to the 
+Raven to control it (e.g. position). Any controller that sends such 
+data should be able to control the Raven, without needing to worry 
+about packet sequencing, or other aspects of communication. The 
+controller can also choose to listen to data the Raven responds with. 
 
-\subsection{No-fly zones}
+Arbitrary controllers include the keyboard, Leap Motion, Kinect, etc.
+
+\subsection{Automation}
+The Raven should be aware of the position of its arms in the real 
+world, so that it can choose which paths to follow, and which paths 
+to avoid.
+
+If the Raven can understand intuitive positionings, like Cartesian 
+coordinates, then a human can both define paths for the Raven to move 
+in, and also no-fly zones, bounding its movements. 
 
 \subsection{Image recognition}
+Separate image recognition systems that make use of a camera to 
+recognize the context in which its arms are in can improve the 
+Raven's automation accuracy. It can choose to listen to data from 
+the Raven, about its joint positions, and make decisions depending 
+on the situation. For instance, the camera can learn to recognize 
+a moving organ, and ensure that the end-effector always keeps a 
+2 mm distance away from the surface of the organ.
+
+Many image recognition libraries exist, like OpenCV, that can be 
+developed independently of the Raven, and appended on when ready.
 
 \section{Design}
 
