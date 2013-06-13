@@ -81,16 +81,55 @@ The Raven II surgical robotic arm was designed by the BioRobotics
 Laboratory (BRL) at the University of Washington, and one copy of the
 robot was given to the Center for Advanced Surgical and Interventional
 Technology (CASIT) at the University of California Los Angeles to help
-study and improve. Our team helped modularize the code base of the
-Raven II as provided by BRL.
+study and improve.
 
-In computer science, using modular design guarantees code readability
-and, most importantly, code shareability. The Raven II implements
-Robot Operating System (ROS) which is a programming framework built
+The Raven is designed to enhance remote surgical operations, and 
+minimally invasive surgery (MIS). BRL achieved this feat by using the 
+Omni haptic devices to remotely control the Raven. However, this is 
+only the first step in improving robotic surgery in MIS.
+
+The Raven remains difficult to interface with. One of our goals is to 
+develop new controllers for the Raven, as alternatives to the Omnis. 
+Furthermore, because the Raven is software controlled, we can use 
+software to enhance the surgeon's capabilities. Two main areas we 
+aim to develop are generic automation, and image recognition. 
+Automation includes many features. In the near future, we plan to 
+focus on the ability to define and record \emph{paths} that the 
+robotic arm has taken. This would allow for training the Raven to 
+perform certain tasks, like automated suturing, or automatically 
+positioning the robotic arms in a particular configuration. Another 
+feature of automation would be \emph{no-fly zones} - zones where 
+the raven is prohibited from moving in to (e.g. sensitive tissues). 
+Image recognition is also a software capability that could enhance 
+MIS by improving automation. The camera and software analysis provides 
+a closed loop feedback system to the automated ability, thus improving 
+any automated tasks.
+
+Unfortunately, when our team analyzed the code base of the Raven 
+project, we found it difficult to develop on. The problem was the lack 
+of modularity in the system. Each subsystem was tightly coupled with 
+other subsystems, requiring very in depth knowledge of the entire 
+code base to be able to add features. With such a interdependent 
+system, it was difficult to take one part (e.g. the controller) and 
+enhance it, without requiring a large fix, or breaking some other 
+subsystem.
+
+Thus the ultimate goal of developing improved feature sets, whether 
+by us or any other group, is hindered by the difficulty of the code 
+base. Modular design guarantees code readability
+and, most importantly, code shareability. By following a modular 
+design, both ease of development, and collaborative development, can 
+be increased.
+
+The Raven II implements
+Robot Operating System (ROS), which is a programming framework built
 around the idea of modular components that are, in theory, so abstract
 that they can even be shared across different robots. However, we
 discovered that BRL's use of ROS programming constructs are minimal
-(granted, ROS did not exist when the Raven was originally conceived).
+(granted, ROS did not exist when the Raven was originally conceived,
+and was later integrated into the system). Thus the revamped Raven 
+system we are developing utilizes the abilities of ROS to keep the 
+code base modular.
 
 \section{Understanding the Raven code}
 
