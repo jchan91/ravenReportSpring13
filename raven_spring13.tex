@@ -129,9 +129,12 @@ discovered that BRL's use of ROS programming constructs are minimal
 (granted, ROS did not exist when the Raven was originally conceived,
 and was later integrated into the system). Thus the revamped Raven 
 system we are developing utilizes the abilities of ROS to keep the 
-code base modular.
+code base modular. The bulk of this past quarter's work has been to 
+use ROS to modularize the code base for future developments.
 
-\section{Understanding the Raven code}
+\section{Requirements}
+
+\subsection{Understanding the Original (BRL) Raven code}
 
 The structure of the current raven system is straightfoward. At the
 highest level, there is a master node and a slave node. The master
@@ -167,9 +170,13 @@ torques (this process is called PID control). The control thread
 encapsulates what is referred to as the \emph{control loop}, and can
 be seen in the source file \texttt{rt\_process\_preempt.c}.
 
-\section{Motivation}
+The complexity of the system is in the slave system. It is the bulk 
+of the Raven code, and is highly interdependent. Thus, it is difficult 
+to either make the slave perform any new tasks (by editing the slave 
+code), or creating an arbitrary master or controller, because the 
+slave code only knows how to listen to an Omni controlled master.
 
-\subsection{Lack of modular design}
+\subsection{Modularity from ROS}
 
 Many components in the Raven code required specific knowledge of
 several other components. In a fully modular system, each component
@@ -190,15 +197,27 @@ message data. The UDPROS transport is useful when latency is more
 important than reliable transport. Examples in the robotics domain
 include teleoperation\ldots~\cite{udpros}.''
 
-\subsection{Robots in MIS, and software}
+The key to attaining modularity from ROS is to make use of its nodes, 
+and interfaces between nodes. Each subsystem has a task, and can be 
+considered a node. Its code can be independent of that of other nodes. 
+ROS provides interfacing between nodes with \emph{topics} and 
+\emph{services}. These important constructs allow nodes to work 
+independently for the most part, and when they need to communicate, 
+there exists a standard messaging mechanism.
 
-\subsection{Image recognition}
+By breaking up tasks so that each node is responsible for one task, 
+it is easy to add features. For instance, the node that is designed 
+to receive TCP packets from the master can be easily replaced with 
+a better node that uses UDPROS to receive UDP packets from the master. 
+Since the node is independent of other nodes in the system, the whole 
+will not break.
 
-\subsection{No-fly zones}
 
 \subsection{Arbitrary controllers}
 
-\section{Requirements}
+\subsection{No-fly zones}
+
+\subsection{Image recognition}
 
 \section{Design}
 
@@ -225,7 +244,7 @@ LapaRobot support to the Raven should be straightforward since it
 would not require knowledge of any part of the ROS network beyond its
 interface with the Master node.
 
-\subsection{Generic Control}
+\subsection{Master: Generic Control}
 
 BRL hard-coded the control side as part of the Raven-II system so that
 the control device can only be the Sensable Phantom Omni. Although the
@@ -277,7 +296,7 @@ through either a {\it control.xml} file or a GTK
 interface\footnote{GTK,http://www.gtk.org/}. The proper control nodes
 will be generated based on the user input.
 
-\subsection{Finite State Machine}
+\subsection{Slave: Finite State Machine}
 
 The finite state machine serves as a high-level commander of the
 Raven-II system. It's in charge of the state estimation and
@@ -307,6 +326,15 @@ services. One example is the controller-FSM messaging mentioned in the
 communicates with {\it ControlEmu} through a service, gives {\it
   raven\_mech} orders through messages and reports to "Mode\_Switch"
 for state estimation.
+
+\subsection{Slave: Mech} % How do you move this so that it's after the figure??
+
+\subsection{Message Format Between Master and Slave}
+- Pedal up/down
+
+- Position
+
+- Quaternions
 
 \section{Mistakes}
 
