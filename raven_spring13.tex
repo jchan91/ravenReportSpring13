@@ -66,6 +66,7 @@ team is to fully integrate ROS into the Raven II which would bring
 better support for generic control, image processing, basic
 automation, and overall cleaner and more reliable code. This report
 covers the implementation of generic control based on ROS.
+%% TODO: change 'what this report covers' !!!!
 
       \end{abstract}
     \end{minipage}
@@ -131,6 +132,12 @@ easily added. This has been the bulk of this past quarter's work.
 \section{Requirements}
 
 \subsection{Understanding the Original (BRL) Raven code}
+
+\begin{figure}[h]
+  \includegraphics[scale=0.33]{RavenII_Block_Diagram.jpg}
+  \caption{Raven II Call Diagram}
+  \label{fig:block_diagram}
+\end{figure}
 
 The structure of the current raven system is straightfoward. At the
 highest level, there is a master node and a slave node. The master
@@ -269,20 +276,22 @@ coordinates, then a human can both define paths for the Raven to move
 in, and also no-fly zones, bounding its movements. 
 
 \subsection{Image recognition}
-Separate image recognition systems that make use of a camera to 
-recognize the context in which its arms are in can improve the 
-Raven's automation accuracy. It can choose to listen to data from 
-the Raven, about its joint positions, and make decisions depending 
-on the situation. For instance, the camera can learn to recognize 
-a moving organ, and ensure that the end-effector always keeps a 
-2 mm distance away from the surface of the organ.
+Image recognition systems that make use of a camera to recognize the
+context which its end-effectors are in can improve the Raven's
+automation accuracy. We may want the Raven to infer its pose or the
+positions of organs, so it can make decisions depending on the
+situation. For instance, the system can learn to recognize a moving
+organ, and ensure that the its end-effector is always kept at a 2 mm
+distance from the surface of the organ. In general, 3D boundaries may
+be constructed from 2D video which can be used to define no-fly zone.
 
-Many image recognition libraries exist, like OpenCV, that can be 
-developed independently of the Raven, and appended on when ready.
+Additional sensors may be used to detect distance, so a depth map
+can be constructed and overlayed on the surgeon's viewing screen to
+help complement the surgeon's lack of depth perception.
 
 \section{Design}
 
-\begin{figure*}[ht!]
+\begin{figure*}[t]
   \begin{center}
     \includegraphics[width=1.0\textwidth]{ros_high_level_v2.eps}
   \end{center}
@@ -310,7 +319,7 @@ interface with the Master node.
 BRL hard-coded the control side as part of the Raven-II system so that
 the control device can only be the Sensable Phantom Omni. Although the
 Phantom Omni is a widely used haptic device for medical simulation and
-training [2], such a constraint would be a limiting factor for projects
+training~\cite{2}, such a constraint would be a limiting factor for projects
 involving other types of controllers. In our reimplementation, the
 control node is contained within an independent ROS package called
 \emph{raven control}. It interacts with the finite state machine in
@@ -349,7 +358,7 @@ controllers. Due to the incompleteness of the development, a control
 device node needs to be manually added following the template in
 Figure~\ref{fig:control_device_template}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
   \includegraphics[scale=0.6]{ControlDeviceTemplate.png}
   \caption{Control Device Python Template}
   \label{fig:control_device_template}
@@ -416,26 +425,38 @@ listed below:
     constantly subject to external forces.
 \end{itemize}
  
-\subsection{Message Format Between Master and Slave}
-- Pedal up/down
-
-- Position
-
-- Quaternions
-
-\section{Mistakes}
-
 \section{Results and Conclusion}
-The use of ROS has already shown promising results. Within two weeks,
-a keyboard controller and a position simulator was developed without 
-any knowledge of how the underlying Raven system works. The controller 
-only had to adhere to the provided message format. Furthermore, the 
-simulation code was actually a subsystem of a completely different 
-ROS project, compltely unrelated to the Raven. With no changes to its 
-code, the simulator was appended to the system.
+
+Our team has made progress towards total ROS integration taking
+several components of the original system and separating them into ROS
+packages with clearly defined interfaces. Creating a functional ROS
+network was a trivial task, but understanding the original code and
+determining the dependencies between each conceptual component was
+very time consuming. At the very beginning, the entire code was a big
+``black box'', but now that we have broken it into smaller parts and
+reduced the size of the original ``black box'', a ROS programmer can
+iterate on our work without needing to learn special details of the
+robot.
 
 %% {\footnotesize \bibliographystyle{acm}
 %% \bibliography{../common/bibliography}}
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{thebibliography}{9}
+\bibitem{}
+
+  \textit{Raven: A Surgical Robot System for Open and Minimally
+    Invasive Surgery}, BioRobotics Laboratory, University of
+  Washington. \texttt{<http://ee.washington.edu/laboratory/node/26>}
+
+\bibitem{2}
+
+  \textit{The Geomagics Touch Haptic Device},
+  \texttt{<http://geomagic.com/en/products/phantom-omni/overview>}
+
+\end{thebibliography}
+\end{@twocolumnfalse}
+]
 
 %% \theendnotes
 
