@@ -54,19 +54,16 @@ University of California Los Angeles
     \begin{minipage}{0.8\linewidth}
       \begin{abstract}
 
-The Raven II Surgical Robot is a 7-DOF cable-actuated surgical robot
-designed for minimally invasive and remote surgery. The robot can be
-teleoperated with two Phantom Omnis which are haptic devices designed
-for medical training and research applications. The Raven utilizes
-Robot Operating System (ROS), a collection of software modules
-specially made for developing robot applications. Many features of ROS
-could be beneficial to the the Raven, but are inaccessible due to
-current code's limited use of ROS constructs. The objective of our
-team is to fully integrate ROS into the Raven II which would bring
-better support for generic control, image processing, basic
-automation, and overall cleaner and more reliable code. This report
-covers the implementation of generic control based on ROS.
-%% TODO: change 'what this report covers' !!!!
+The Raven II is a 7-DOF cable-actuated surgical robot designed for
+minimally invasive and remote surgery. It utilizes Robot Operating
+System (ROS), a collection of software modules specially made for
+developing robot applications. Many features of ROS could be
+beneficial to the the Raven, but are inaccessible due to current
+code's limited use of ROS constructs. Our team has integrated ROS into
+the Raven II which will bring better support for generic control,
+image processing, basic automation, and overall cleaner and more
+reliable code. This report covers the benefits of a ROS-centric system
+and details on how we have integrated ROS into the existing code.
 
       \end{abstract}
     \end{minipage}
@@ -90,23 +87,22 @@ minimally invasive surgery (MIS). BRL achieved this feat by using the
 Omni haptic devices to remotely control the Raven. However, this is 
 only the first step in improving robotic surgery in MIS.
 
-Ultimately, we plan to develop three areas of Raven function: novel 
-controllers, generic automation, and image recognition. Novel 
-controllers are beneficial because the Omni devices are not intuitive 
-to use.
-Furthermore, because the Raven is software controlled, we can use 
-software to enhance the surgeon's capabilities. Two main areas we 
-aim to develop are generic automation, and image recognition. 
-Automation includes many features. In the near future, we plan to 
-focus on the ability to define and record \emph{paths} that the 
-robotic arm has taken. This would allow for training the Raven to 
-perform certain tasks, like automated suturing, or automatically 
-positioning the robotic arms in a particular configuration. Another 
-feature of automation would be \emph{no-fly zones} - zones where 
-the raven is prohibited from moving in to (e.g. sensitive tissues). 
-Image recognition is also a software capability that could enhance 
-MIS by improving automation. The camera and software analysis provides 
-a closed loop feedback system to the automated ability, thus improving 
+Ultimately, we plan to develop three areas of Raven function: novel
+controllers, generic automation, and image recognition. Novel
+controllers are beneficial because the Omni devices are not intuitive
+to use.  Furthermore, because the Raven is software controlled, we can
+use software to enhance the surgeon's capabilities. Two main areas we
+aim to develop are generic automation, and image recognition.
+Automation includes many features. In the near future, we plan to
+focus on the ability to define and record \emph{paths} that the
+robotic arm has taken. This would allow for training the Raven to
+perform certain tasks, like automated suturing, or automatically
+positioning the robotic arms in a particular configuration. Another
+feature of automation would be \emph{no-fly zones}---zones where the
+raven is prohibited from moving in to (e.g. sensitive tissues).  Image
+recognition is also a software capability that could enhance MIS by
+improving automation. The camera and software analysis provides a
+closed loop feedback system to the automated ability, thus improving
 any automated tasks.
 
 Unfortunately, when our team analyzed the code base of the Raven 
