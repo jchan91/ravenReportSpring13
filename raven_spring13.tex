@@ -88,8 +88,10 @@ minimally invasive surgery (MIS). BRL achieved this feat by using the
 Omni haptic devices to remotely control the Raven. However, this is 
 only the first step in improving robotic surgery in MIS.
 
-The Raven remains difficult to interface with. One of our goals is to 
-develop new controllers for the Raven, as alternatives to the Omnis. 
+Ultimately, we plan to develop three areas of Raven function: novel 
+controllers, generic automation, and image recognition. Novel 
+controllers are beneficial because the Omni devices are not intuitive 
+to use.
 Furthermore, because the Raven is software controlled, we can use 
 software to enhance the surgeon's capabilities. Two main areas we 
 aim to develop are generic automation, and image recognition. 
@@ -112,25 +114,18 @@ other subsystems, requiring very in depth knowledge of the entire
 code base to be able to add features. With such a interdependent 
 system, it was difficult to take one part (e.g. the controller) and 
 enhance it, without requiring a large fix, or breaking some other 
-subsystem.
+subsystem. In addition, the lack of modularity decreases code 
+shareability. This unessecary complexity hinders not only our 
+development of new features, but also the development by any other 
+group.
 
-Thus the ultimate goal of developing improved feature sets, whether 
-by us or any other group, is hindered by the difficulty of the code 
-base. Modular design guarantees code readability
-and, most importantly, code shareability. By following a modular 
-design, both ease of development, and collaborative development, can 
-be increased.
-
-The Raven II implements
-Robot Operating System (ROS), which is a programming framework built
-around the idea of modular components that are, in theory, so abstract
-that they can even be shared across different robots. However, we
-discovered that BRL's use of ROS programming constructs are minimal
-(granted, ROS did not exist when the Raven was originally conceived,
-and was later integrated into the system). Thus the revamped Raven 
-system we are developing utilizes the abilities of ROS to keep the 
-code base modular. The bulk of this past quarter's work has been to 
-use ROS to modularize the code base for future developments.
+To tackle this problem, we restructure the code base around the Robot
+Operating System (ROS) framework. It is highly distributed, and 
+provides many constructs for hardware abstraction, package management, 
+and functional libraries designed for robotic systems. Thus the 
+revamped Raven system we are developing aims to utilizes the the full 
+power  of ROS to keep the code base modular, so that features can be 
+easily added. This has been the bulk of this past quarter's work.
 
 \section{Requirements}
 
@@ -191,11 +186,9 @@ differential poses are not processed in-order, then the accumulated
 absolute pose might sometimes have a meaningless value. In a modular
 system, there may be an additional \emph{sequencer} module that
 handles one simple task: sequencing packets in an unreliable
-link. Incidentally, ROS provides an alternative transport layer:
-``UDPROS uses standard UDP datagram packets to transport serialized
-message data. The UDPROS transport is useful when latency is more
-important than reliable transport. Examples in the robotics domain
-include teleoperation\ldots~\cite{udpros}.''
+link. Incidentally, ROS provides an alternative transport layer, 
+UDPROS, that can do this, and much more. Such a module can be easily 
+added to the Raven system with very few changes.
 
 The key to attaining modularity from ROS is to make use of its nodes, 
 and interfaces between nodes. Each subsystem has a task, and can be 
@@ -213,14 +206,21 @@ Since the node is independent of other nodes in the system, the whole
 will not break.
 
 
-\subsection{Arbitrary controllers}
+\subsection{Novel controllers}
+Controllers should focus on details of interpreting human movements, 
+or whatever is considered the Raven's master. It should need minimal 
+knowledge of how the Raven works, or the semantics of the 
+communication link between Raven and the controller.
+
 There is a bare minimum amount of data that needs to be sent to the 
-Raven to control it (e.g. position). Any controller that sends such 
+Raven to control (e.g. position). Any controller that sends such 
 data should be able to control the Raven, without needing to worry 
 about packet sequencing, or other aspects of communication. The 
 controller can also choose to listen to data the Raven responds with. 
 
 Arbitrary controllers include the keyboard, Leap Motion, Kinect, etc.
+
+- Controllers only need 
 
 \subsection{Automation}
 The Raven should be aware of the position of its arms in the real 
@@ -334,7 +334,7 @@ transition. Figure 3 shows the work flow of the FSM.
 After initialization, the FSM starts inspecting {\it raven\_mech}'s
 homing action until it's done. The "Mode\_Switch" state is where major
 estimation and transitions happen. Based on the user input, the FSM
-transits to the corresponding state (control, sewing automation, tumor
+transits to the corresponding state (control, suturing automation, tumor
 tracking, etc). The current implementation leaves room for more modes
 in the future development. Among all the modes, "Control" has the
 highest priority. Any other modes can be interrupted by the user
@@ -362,8 +362,14 @@ for state estimation.
 
 \section{Mistakes}
 
-\section{Conclusion}
-
+\section{Results and Conclusion}
+The use of ROS has already shown promising results. Within two weeks,
+a keyboard controller and a position simulator was developed without 
+any knowledge of how the underlying Raven system works. The controller 
+only had to adhere to the provided message format. Furthermore, the 
+simulation code was actually a subsystem of a completely different 
+ROS project, compltely unrelated to the Raven. With no changes to its 
+code, the simulator was appended to the system.
 
 %% {\footnotesize \bibliographystyle{acm}
 %% \bibliography{../common/bibliography}}
