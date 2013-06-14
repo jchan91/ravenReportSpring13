@@ -56,14 +56,15 @@ University of California Los Angeles
 
 The Raven II is a 7-DOF cable-actuated surgical robot designed for
 minimally invasive and remote surgery. It utilizes Robot Operating
-System (ROS), a collection of software modules specially made for
-developing robot applications. Many features of ROS could be
-beneficial to the the Raven, but are inaccessible due to current
-code's limited use of ROS constructs. Our team has integrated ROS into
-the Raven II which will bring better support for generic control,
-image processing, basic automation, and overall cleaner and more
-reliable code. This report covers the benefits of a ROS-centric system
-and details on how we have integrated ROS into the existing code.
+System (ROS), a collection of software modules designed for
+developing robot applications. We want to develop novel input controllers, 
+basic automation, and image recognition to enhance the Raven's 
+functionality. However, the code's limited use of ROS constructs hinder the 
+development of these features. Hence, we are increasing the use of ROS 
+to achieve these goals. There are many benefits to ROS-centric code, 
+including overall cleaner code, and increased reliability. This report 
+covers the benefits of a ROS-centric system and details on how we have 
+integrated ROS into the existing code.
 
       \end{abstract}
     \end{minipage}
@@ -344,9 +345,9 @@ functionality of other parts will not be compromised.
 
 \subsection{Master: Generic Control}
 
-BRL hard-coded the control side as part of the Raven-II system so that
-the control device can only be the Sensable Phantom Omni. Although the
-Phantom Omni is a widely used haptic device for medical simulation and
+BRL hard-coded the control side as part of the Raven system so that
+the only control device that could be used is the Phantom Omni. Although the
+Phantom Omni is a widely used haptic device for medical simulations and
 training~\cite{2}, such a constraint would be a limiting factor for projects
 involving other types of controllers. In our reimplementation, the
 control node is contained within an independent ROS package called
@@ -370,10 +371,10 @@ and roll into a quaternion orientation required by
 the finite state machine is established through a ROS
 service\footnote{ROS Services provides a request/reply messaging
   interface between two nodes}. \emph{ControlEmu} sends a request to
-the service proxy which the finite state machine (FSM in short)
+the service proxy, which the Finite State Machine (FSM)
 listens to. Once a control request is received, the FSM formulates a
-message object and sends it to the topic \emph{raven/fsm} subscribed
-by the arm nodes (the arms are labeled "green" and "gold
+message object and sends it to the topic \emph{raven/fsm} that the arm
+nodes are subscribed to (the arms are labeled "green" and "gold
 respectively"). Once the arms are ready for next control event, the
 FSM evaluates the situation and accordingly sends back a response to
 \emph{ControlEmu}. \emph{ControlEmu} then issues a new request based
