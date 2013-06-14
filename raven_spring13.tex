@@ -128,7 +128,7 @@ revamped Raven system we are developing aims to utilizes the the full
 power  of ROS to keep the code base modular, so that features can be 
 easily added. This has been the bulk of this past quarter's work.
 
-\section{Requirements}
+\section{Motivation}
 
 \subsection{Understanding the Original (BRL) Raven code}
 
@@ -260,13 +260,45 @@ about the Raven system, while still being able to take full advantage
 of the Raven's capabilities.
 
 \subsection{Automation}
-The Raven should be aware of the position of its arms in the real 
-world, so that it can choose which paths to follow, and which paths 
-to avoid.
+Automating common procedures is another way we want to enhance MIS.
+Currently, there is no automated behavior in the Raven system. However, 
+software is good at automated tasks. The tasks we aim to  
+develop include no-fly zones, custom joint configurations, and 
+suturing.
 
-If the Raven can understand intuitive positionings, like Cartesian 
-coordinates, then a human can both define paths for the Raven to move 
-in, and also no-fly zones, bounding its movements. 
+We define no-fly zones as volumes in space where no joint of the Raven 
+should enter. These zones are important because they can prevent the 
+Raven from touching sensitive tissues or organs. Normally, the surgeon 
+must be extra careful with their tool set, but this is may be 
+distracting. Since the Raven already has information about 
+the position of each of its joints in space, it can automatically 
+check whether the user is moving the Raven arm into a no-fly zone. 
+These no-fly zones can be pre-defined by the user. One advanced 
+feature we will discuss later is having the Raven automatically defining 
+these no-fly zones on its own with the aid of computer vision.
+
+Not only should users be able to forbid the Raven's range of motion, 
+but users should also be able to define 
+paths for the Raven to follow. Assume there is a configuration of 
+the Raven that the user favors. Perhaps it is zeroing the Raven arms, 
+or a configuration so that the joints are better positioned for a 
+particular procedure, or going a previously saved configuration. 
+It would be useful if the user could teach the Raven a path to move 
+its arms into a favorable configuration. The Raven should be able to 
+save that behavior, and recite it on command.
+
+Ultimately, we want the Raven to be capable of following very 
+comlicated paths and perform common surgical techniques. Automated 
+suturing is one such technique that we want to strive for. Ideally, 
+the Raven would be able to perform a recorded technique  
+during situations where it would be very difficult 
+for the surgeon to perform manually. However, automating suturing 
+without feedback sensors will be difficult because the Raven will 
+have trouble applying learned techniques in various situations. 
+Such cases would require the surgeon to set up the Raven so that it can 
+perform the appropriate procedure in the appropriate situation. With 
+the addition of sensors for feedback, the Raven could independently make 
+simple judgements about its surroundings and attempt to adapt.
 
 \subsection{Image recognition}
 Separate image recognition systems that make use of a camera to 
