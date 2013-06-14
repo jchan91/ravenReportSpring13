@@ -24,6 +24,7 @@
 \usepackage{usenix,epsfig,endnotes}
 \usepackage[T1]{fontenc}
 \usepackage{epstopdf}
+\usepackage{enumitem}
 \begin{document}
 
 %don't want date printed
@@ -145,15 +146,15 @@ differential poses and grasp values for each arm. There is also a
 pedal connected to the master computer to determine whether the
 operator wants to engage or disengage the robot. During each iteration
 it encapsulates all that data in UDP packets and sends them to the
-slave node. \\
+slave node.
 
+\vspace{0.5em}
 \noindent
 The slave code spawns three threads:
-
-\begin{itemize}
-  \item console I/O
+\begin{itemize}[noitemsep]
   \item networking
   \item control (e.g. IK, USB I/O)
+  \item console I/O
 \end{itemize}
 
 The \emph{networking thread} listens for UDP packets from the master
@@ -163,7 +164,9 @@ realtime thread that, at a fixed interval, retrieves the latest
 desired pose, calculates torques for each motor, and applies those
 torques (this process is called PID control). The control thread
 encapsulates what is referred to as the \emph{control loop}, and can
-be seen in the source file \texttt{rt\_process\_preempt.c}.
+be seen in the source file \texttt{rt\_process\_preempt.c}. The
+\emph{console I/O} thread is used for initializing the robot and
+printing status updates.
 
 The complexity of the system is in the slave system. It is the bulk 
 of the Raven code, and is highly interdependent. Thus, it is difficult 
@@ -187,8 +190,7 @@ absolute pose might sometimes have a meaningless value. In a modular
 system, there may be an additional \emph{sequencer} module that
 handles one simple task: sequencing packets in an unreliable
 link. Incidentally, ROS provides an alternative transport layer, 
-UDPROS, that can do this, and much more. Such a module can be easily 
-added to the Raven system with very few changes.
+UDPROS, that fills the role of a sequencer module.
 
 The key to attaining modularity from ROS is to make use of its nodes, 
 and interfaces between nodes. Each subsystem has a task, and can be 
@@ -273,86 +275,112 @@ interface with the Master node.
 BRL hard-coded the control side as part of the Raven-II system so that
 the control device can only be the Sensable Phantom Omni. Although the
 Phantom Omni is a widely used haptic device for medical simulation and
-training [2], such constraint would be a limiting factor for projects
+training [2], such a constraint would be a limiting factor for projects
 involving other types of controllers. In our reimplementation, the
 control node is contained within an independent ROS package called
-{\it raven\_control}. It interacts with the finite state machine in
-{\it raven\_fsm} through the ROS messaging system, as shown in Figure
-1.
+\emph{raven control}. It interacts with the finite state machine in
+\emph{raven fsm} through the ROS messaging system, as shown in
+Figure~\ref{fig:control_diagram}.
 
 \begin{figure}[h]
-\includegraphics[scale=0.33]{ControlDiagram.jpg}
-\caption{Controller-FSM Messaging}
+  \includegraphics[scale=0.33]{ControlDiagram.jpg}
+  \caption{Controller-FSM Messaging}
+  \label{fig:control_diagram}
 \end{figure}
 
-The {\it ControlDevice} node indicates the actual control device from
-the user end. When the user triggers a control event, {\it
-  ControlDevice} publishes the message (x, y, z, pitch, yaw, roll,
-pedal and state) to the topic {\it raven/control}. On the subscriber
-end, {\it ControlEmu} transforms the values of pitch, yaw and roll
-into quaternion required by {\it raven\_mech}. The communication
-between {\it ControlEmu} and the finite state machine is established
-through a ROS service\footnote{ROS Services,
-  http://www.ros.org/wiki/Services}. {\it ControlEmu} sends a request
-to the service proxy which the finite state machine (FSM in short)
+The \emph{ControlDevice} node represents the actual control device on
+the user end (e.g. the Phantom Omni). When the user triggers a control
+event, \emph{ControlDevice} publishes the message \{x, y, z, pitch,
+yaw, roll, pedal, state\} to the topic \emph{raven/control}. On the
+subscriber end, \emph{ControlEmu} transforms the values of pitch, yaw
+and roll into a quaternion orientation required by
+\emph{raven\_mech}. The communication between \emph{ControlEmu} and
+the finite state machine is established through a ROS
+service\footnote{ROS Services provides a request/reply messaging
+  interface between two nodes}. \emph{ControlEmu} sends a request to
+the service proxy which the finite state machine (FSM in short)
 listens to. Once a control request is received, the FSM formulates a
-message object and sends it to the topic {\it raven/fsm} subscribed by
-the arm nodes (the arms are labeled "green" and "gold
+message object and sends it to the topic \emph{raven/fsm} subscribed
+by the arm nodes (the arms are labeled "green" and "gold
 respectively"). Once the arms are ready for next control event, the
 FSM evaluates the situation and accordingly sends back a response to
-{\it ControlEmu}. {\it ControlEmu} then issues a new request based on
-the previous response.
+\emph{ControlEmu}. \emph{ControlEmu} then issues a new request based
+on the previous response.
 
 Compared to the BRL's implementation, our implementation allows
 generic control devices besides the Phantom Omni. The tested working
 devices are keyboards, PlayStation3 controllers and generic PC game
 controllers. Due to the incompleteness of the development, a control
 device node needs to be manually added following the template in
-Figure 2.
+Figure~\ref{fig:control_device_template}.
 
 \begin{figure}[h]
-\includegraphics[scale=0.6]{ControlDeviceTemplate.png}
-\caption{Control Device Python Template}
+  \includegraphics[scale=0.6]{ControlDeviceTemplate.png}
+  \caption{Control Device Python Template}
+  \label{fig:control_device_template}
 \end{figure}
 
 Eventually users will be able to add and configure control devices
-through either a {\it control.xml} file or a GTK
-interface\footnote{GTK,http://www.gtk.org/}. The proper control nodes
-will be generated based on the user input.
+through either a \emph{control.xml} file or a GTK
+interface\footnote{GTK is a programming toolkit for creating graphical
+  user interfaces}. The proper control nodes will be generated based
+on the user input.
 
 \subsection{Slave: Finite State Machine}
 
 The finite state machine serves as a high-level commander of the
 Raven-II system. It's in charge of the state estimation and
-transition. Figure 3 shows the work flow of the FSM.
+transition. Figure~\ref{fig:fsm_workflow} shows the work flow of the FSM.
 
 \begin{figure}[h]
-\includegraphics[scale=0.4]{FSM.png}
-\caption{FSM Work Flow}
+  \includegraphics[scale=0.4]{FSM.png}
+  \caption{FSM Work Flow}
+  \label{fig:fsm_workflow}
 \end{figure}
 
-After initialization, the FSM starts inspecting {\it raven\_mech}'s
-homing action until it's done. The "Mode\_Switch" state is where major
-estimation and transitions happen. Based on the user input, the FSM
-transits to the corresponding state (control, suturing automation, tumor
-tracking, etc). The current implementation leaves room for more modes
-in the future development. Among all the modes, "Control" has the
-highest priority. Any other modes can be interrupted by the user
-control. This is a rather naive implementation mainly for testing and
-is subject to change. Among all the states, "ESTOP/TERMINATION" has
-the highest priority. The FSM goes to this state once there is an
-emergency interruption. The FSM would then save the current state
-record and properly stop the Raven-II system. The FSM is also designed
-to communicate with external ROS nodes. Essentially modes can hand
-work to ROS nodes and collect status for progress through
-services. One example is the controller-FSM messaging mentioned in the
-"Generic Control" section. If the "Control" mode is active, the FSM
-communicates with {\it ControlEmu} through a service, gives {\it
-  raven\_mech} orders through messages and reports to "Mode\_Switch"
-for state estimation.
+After initialization, the FSM starts inspecting \emph{raven\_mech}'s
+homing action until it's done. The \texttt{Mode\_Switch} state is
+where major estimation and transitions happen. Based on the user
+input, the FSM transits to the corresponding state (control, suturing
+automation, tumor tracking, etc). The current implementation leaves
+room for more modes in the future development. Among all the modes,
+``Control'' has the highest priority. Any other modes can be
+interrupted by the user control. This is a rather naive implementation
+mainly for testing and is subject to change. Among all the states,
+\texttt{ESTOP/TERMINATION} has the highest priority. The FSM goes to
+this state once there is an emergency interruption. The FSM would then
+save the current state record and properly stop the Raven-II
+system. The FSM is also designed to communicate with external ROS
+nodes. Essentially modes can hand work to ROS nodes and collect status
+for progress through services. One example is the controller-FSM
+messaging mentioned in the ``Generic Control'' section. If the
+``Control'' mode is active, the FSM communicates with
+\emph{ControlEmu} through a service, gives \emph{raven\_mech} orders
+through messages and reports to \texttt{Mode\_Switch} for state
+estimation.
 
-\subsection{Slave: Mech} % How do you move this so that it's after the figure??
+\subsection{Slave: Mech}
 
+Here is where the remainder of the original code can be found. All the
+subroutines for handling low-level, Raven-specific components are
+currently being encapsulated in a ``black box'' helper library. These
+are things that \emph{could} be replaced with ROS parts, but doing so
+may not stricty give us an advantage. Some of these components are
+listed below:
+
+\begin{itemize}
+  \item Code for handling USB I/O. This is where the the code
+    interfaces directly with the Raven's hardware controller.
+
+  \item Code for handling Raven-specific arm kinematics. This code is
+    derived from a precise mathematical model of the Raven II arm
+    design.
+
+  \item Code for PID control and gravity compensation. This code is
+    used for dynamically obtaining the desired pose while the arm is
+    constantly subject to external forces.
+\end{itemize}
+ 
 \subsection{Message Format Between Master and Slave}
 - Pedal up/down
 
