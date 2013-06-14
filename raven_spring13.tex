@@ -202,25 +202,64 @@ By breaking up tasks so that each node is responsible for one task,
 it is easy to add features. For instance, the node that is designed 
 to receive TCP packets from the master can be easily replaced with 
 a better node that uses UDPROS to receive UDP packets from the master. 
-Since the node is independent of other nodes in the system, the whole 
-will not break.
+Since the node is independent of other nodes in the system, 
+functionality of other parts will not be compromised.
 
 
 \subsection{Novel controllers}
-Controllers should focus on details of interpreting human movements, 
-or whatever is considered the Raven's master. It should need minimal 
-knowledge of how the Raven works, or the semantics of the 
-communication link between Raven and the controller.
+We would like to pursue developing novel controllers for the Raven 
+because a variety of technologies offer much better functionality 
+than the Omni devices. Such technologies include laparoscopic tools, 
+motion sensors, and tactile/haptic feedback devices that can enhance 
+MIS in ways that the Omni devices can not.
+The default Omni devices have limitations that make them difficult to 
+use. Surgeons who attempted to perform tasks with the Omnis found 
+their
+narrow range of motion to be a problem. One often reached the maximum
+bound of the Omni device, before the Raven's end effector was in the 
+correct position. To continue the path to the desired position, the 
+user had to release 
+control of the Raven, re-position the Omni devices back within range,
+before continuing their path.
 
-There is a bare minimum amount of data that needs to be sent to the 
-Raven to control (e.g. position). Any controller that sends such 
-data should be able to control the Raven, without needing to worry 
-about packet sequencing, or other aspects of communication. The 
-controller can also choose to listen to data the Raven responds with. 
+Our goal is to develop alternative controllers that allow surgeons to
+focus on the surgery, and be unhindered by the controller. The ideal controller would give surgeons the 
+same dexterity as their trained hands, and the haptic and tactile 
+feedback that they are used to with their sense of touch.
 
-Arbitrary controllers include the keyboard, Leap Motion, Kinect, etc.
+Many controllers designed to be more intuitive and dexterous already 
+exist. For instance, there is work in CASIT to interface the Raven 
+with laparoscopic graspers. Surgeons familiar with 
+laparoscopic tools will be able to more easily adapt to using the 
+Raven. 
 
-- Controllers only need 
+Furthermore, motion sensors like the Leap Motion and 
+the Microsoft Kinect
+can track a user's hands and fingertips without the use of any tools
+attached to the user. This offers even more intuitive hand motion
+control. The major advantage of these controllers is the increased 
+sensitivity to the surgeon's finger tips. After a surgeon performs 
+the gross motion of moving the end effectors into a particular 
+position with his/her arms, they could then scale down the 
+sensitivity of the controller, and then focus on detailed tasks with
+their fingers and wrist (e.g. suturing).
+
+Another aspect of intuitive control is haptic and tactile feedback. 
+A Raven fitted with force sensors could provide a valuable tactile 
+feedback about its tool tip. Also, since the Raven performs 
+Proportional Integral Derivative (PID) control to determine motor
+voltages, it is also aware of the amount of force necessary to move
+its joints into a particular position. Thus, it has haptic 
+information as well that could be conveyed to an advanced 
+controller.
+
+A variety of controllers can be customized to enhance laparoscopic 
+surgery. These are only a few ideas on how to make enhancements with
+existing technology. The Raven is a useful platform to research 
+such tools. Thus, it is important to make it easy for developers to
+create novel controllers, without having to worry about cumbersome
+details about the Raven system, while still being able to take full 
+advantage of the Raven's capabilities.
 
 \subsection{Automation}
 The Raven should be aware of the position of its arms in the real 
