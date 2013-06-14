@@ -127,90 +127,6 @@ easily added. This has been the bulk of this past quarter's work.
 
 \section{Motivation}
 
-\subsection{Understanding the Original (BRL) Raven code}
-
-\begin{figure}[h]
-  \includegraphics[scale=0.33]{RavenII_Block_Diagram.jpg}
-  \caption{Raven II Call Diagram}
-  \label{fig:block_diagram}
-\end{figure}
-
-The structure of the current raven system is straightfoward. At the
-highest level, there is a master node and a slave node. The master
-interprets the position and orientation of two Phantom Omni haptic
-controllers (for both arms), translates them into a differential
-position and orientation, then transmits that to the slave. The slave
-will accumulate the differential pose\footnote{in robotics, \emph{pose}
-  is the combination of position and orientation} into an absolute
-pose, or goal pose, then attempt to reach the goal pose.
-
-The master node makes use of the Phantom Omni API for determining
-differential poses and grasp values for each arm. There is also a
-pedal connected to the master computer to determine whether the
-operator wants to engage or disengage the robot. During each iteration
-it encapsulates all that data in UDP packets and sends them to the
-slave node.
-
-\vspace{0.5em}
-\noindent
-The slave code spawns three threads:
-\begin{itemize}[noitemsep]
-  \item networking
-  \item control (e.g. IK, USB I/O)
-  \item console I/O
-\end{itemize}
-
-The \emph{networking thread} listens for UDP packets from the master
-node, then accumulates the differential pose into an absolute pose
-that represents the desired pose. The \emph{control thread} is a
-realtime thread that, at a fixed interval, retrieves the latest
-desired pose, calculates torques for each motor, and applies those
-torques (this process is called PID control). The control thread
-encapsulates what is referred to as the \emph{control loop}, and can
-be seen in the source file \texttt{rt\_process\_preempt.c}. The
-\emph{console I/O} thread is used for initializing the robot and
-printing status updates.
-
-The complexity of the system is in the slave system. It is the bulk 
-of the Raven code, and is highly interdependent. Thus, it is difficult 
-to either make the slave perform any new tasks (by editing the slave 
-code), or creating an arbitrary master or controller, because the 
-slave code only knows how to listen to an Omni controlled master.
-
-\subsection{Modularity from ROS}
-
-Many components in the Raven code required specific knowledge of
-several other components. In a fully modular system, each component
-would not require such information, but would compensate in
-functionality by adding slightly more components that each do slightly
-simpler, more general tasks. In a well designed modular system, each
-component's input and output is clearly defined.
-
-For example, the UDP packets being sent from the master to the slave
-need to be manually sequenced---if, at the slave (recieving) node, the
-differential poses are not processed in-order, then the accumulated
-absolute pose might sometimes have a meaningless value. In a modular
-system, there may be an additional \emph{sequencer} module that
-handles one simple task: sequencing packets in an unreliable
-link. Incidentally, ROS provides an alternative transport layer, 
-UDPROS, that fills the role of a sequencer module.
-
-The key to attaining modularity from ROS is to make use of its nodes, 
-and interfaces between nodes. Each subsystem has a task, and can be 
-considered a node. Its code can be independent of that of other nodes. 
-ROS provides interfacing between nodes with \emph{topics} and 
-\emph{services}. These important constructs allow nodes to work 
-independently for the most part, and when they need to communicate, 
-there exists a standard messaging mechanism.
-
-By breaking up tasks so that each node is responsible for one task, 
-it is easy to add features. For instance, the node that is designed 
-to receive TCP packets from the master can be easily replaced with 
-a better node that uses UDPROS to receive UDP packets from the master. 
-Since the node is independent of other nodes in the system, 
-functionality of other parts will not be compromised.
-
-
 \subsection{Novel controllers}
 We would like to pursue developing novel controllers for the Raven
 because a variety of technologies offer much better functionality than
@@ -342,6 +258,90 @@ LapaRobot support to the Raven should be straightforward since it
 would not require knowledge of any part of the ROS network beyond its
 interface with the Master node.
 
+\subsection{Understanding the Original (BRL) Raven code}
+
+The structure of the current raven system is straightfoward. At the
+highest level, there is a master node and a slave node. The master
+interprets the position and orientation of two Phantom Omni haptic
+controllers (for both arms), translates them into a differential
+position and orientation, then transmits that to the slave. The slave
+will accumulate the differential pose\footnote{in robotics, \emph{pose}
+  is the combination of position and orientation} into an absolute
+pose, or goal pose, then attempt to reach the goal pose.
+
+The master node makes use of the Phantom Omni API for determining
+differential poses and grasp values for each arm. There is also a
+pedal connected to the master computer to determine whether the
+operator wants to engage or disengage the robot. During each iteration
+it encapsulates all that data in UDP packets and sends them to the
+slave node.
+
+\vspace{0.5em}
+\vbox{%
+\noindent
+The slave code spawns three threads:
+\begin{itemize}[noitemsep]
+  \item networking
+  \item control (e.g. IK, USB I/O)
+  \item console I/O
+\end{itemize}}
+
+The \emph{networking thread} listens for UDP packets from the master
+node, then accumulates the differential pose into an absolute pose
+that represents the desired pose. The \emph{control thread} is a
+realtime thread that, at a fixed interval, retrieves the latest
+desired pose, calculates torques for each motor, and applies those
+torques (this process is called PID control). The control thread
+encapsulates what is referred to as the \emph{control loop}, and can
+be seen in the source file \texttt{rt\_process\_preempt.c}. The
+\emph{console I/O} thread is used for initializing the robot and
+printing status updates.
+
+The complexity of the system is in the slave system. It is the bulk 
+of the Raven code, and is highly interdependent. Thus, it is difficult 
+to either make the slave perform any new tasks (by editing the slave 
+code), or creating an arbitrary master or controller, because the 
+slave code only knows how to listen to an Omni controlled master.
+
+\begin{figure}[h]
+  \includegraphics[scale=0.33]{RavenII_Block_Diagram.jpg}
+  \caption{A call diagram depicting the complex interdependencies of the original BRL code}
+  \label{fig:block_diagram}
+\end{figure}
+
+\subsection{Modularity from ROS}
+
+Many components in the Raven code required specific knowledge of
+several other components. In a fully modular system, each component
+would not require such information, but would compensate in
+functionality by adding slightly more components that each do slightly
+simpler, more general tasks. In a well designed modular system, each
+component's input and output is clearly defined.
+
+For example, the UDP packets being sent from the master to the slave
+need to be manually sequenced---if, at the slave (recieving) node, the
+differential poses are not processed in-order, then the accumulated
+absolute pose might sometimes have a meaningless value. In a modular
+system, there may be an additional \emph{sequencer} module that
+handles one simple task: sequencing packets in an unreliable
+link. Incidentally, ROS provides an alternative transport layer, 
+UDPROS, that fills the role of a sequencer module.
+
+The key to attaining modularity from ROS is to make use of its nodes, 
+and interfaces between nodes. Each subsystem has a task, and can be 
+considered a node. Its code can be independent of that of other nodes. 
+ROS provides interfacing between nodes with \emph{topics} and 
+\emph{services}. These important constructs allow nodes to work 
+independently for the most part, and when they need to communicate, 
+there exists a standard messaging mechanism.
+
+By breaking up tasks so that each node is responsible for one task, 
+it is easy to add features. For instance, the node that is designed 
+to receive TCP packets from the master can be easily replaced with 
+a better node that uses UDPROS to receive UDP packets from the master. 
+Since the node is independent of other nodes in the system, 
+functionality of other parts will not be compromised.
+
 \subsection{Master: Generic Control}
 
 BRL hard-coded the control side as part of the Raven-II system so that
@@ -453,7 +453,7 @@ listed below:
     constantly subject to external forces.
 \end{itemize}
  
-\section{Results and Conclusion}
+\section{Conclusion}
 
 Our team has made progress towards total ROS integration taking
 several components of the original system and separating them into ROS
